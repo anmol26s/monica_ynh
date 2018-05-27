@@ -4,11 +4,19 @@
 #                     YUNOHOST 2.7 FORTHCOMING HELPERS
 # =============================================================================
 
-# Create a dedicated nginx config
-#
 
-ynh_add_fpm_config () {
-	finalphpconf="/etc/php5/fpm/pool.d/$app.conf"
+
+
+# Create a dedicated php-fpm config
+#
+# usage: ynh_add_fpm_config
+ynh_add_fpm7.1_config () {
+	# Configure PHP-FPM 7.1 by default
+	local fpm_config_dir="/etc/php/7.1/fpm"
+	local fpm_service="php7.1-fpm"
+	ynh_app_setting_set $app fpm_config_dir "$fpm_config_dir"
+	ynh_app_setting_set $app fpm_service "$fpm_service"
+	finalphpconf="$fpm_config_dir/pool.d/$app.conf"
 	ynh_backup_if_checksum_is_different "$finalphpconf"
 	sudo cp ../conf/php-fpm.conf "$finalphpconf"
 	ynh_replace_string "__NAMETOCHANGE__" "$app" "$finalphpconf"
@@ -19,23 +27,24 @@ ynh_add_fpm_config () {
 
 	if [ -e "../conf/php-fpm.ini" ]
 	then
-		finalphpini="/etc/php5/fpm/conf.d/20-$app.ini"
+		finalphpini="$fpm_config_dir/conf.d/20-$app.ini"
 		ynh_backup_if_checksum_is_different "$finalphpini"
 		sudo cp ../conf/php-fpm.ini "$finalphpini"
 		sudo chown root: "$finalphpini"
 		ynh_store_file_checksum "$finalphpini"
 	fi
-
-	sudo systemctl reload php5-fpm
+	sudo systemctl reload $fpm_service
 }
 
 # Remove the dedicated php-fpm config
 #
-# usage: ynh_remove_fpm_config
-ynh_remove_fpm_config () {
-	ynh_secure_remove "/etc/php5/fpm/pool.d/$app.conf"
-	ynh_secure_remove "/etc/php5/fpm/conf.d/20-$app.ini" 2>&1
-	sudo systemctl reload php5-fpm
+# usage: ynh_remove_fpm7.1_config
+ynh_remove_fpm7.1_config () {
+	local fpm_config_dir=$(ynh_app_setting_get $app fpm_config_dir)
+	local fpm_service=$(ynh_app_setting_get $app fpm_service)
+	ynh_secure_remove "$fpm_config_dir/pool.d/$app.conf"
+	ynh_secure_remove "$fpm_config_dir/conf.d/20-$app.ini" 2>&1
+	sudo systemctl reload $fpm_service
 }
 
 
@@ -86,29 +95,9 @@ init_composer() {
     || ynh_die "Unable to update monica core dependencies"
 }
 
-#
-# NodeJS helpers
-#
-
 sudo_path () {
 	sudo env "PATH=$PATH" $@
 }
-
-# INFOS
-# n (Node version management) utilise la variable PATH pour stocker le path de la version de node à utiliser.
-# C'est ainsi qu'il change de version
-# En attendant une généralisation de root, il est possible d'utiliser sudo avec le helper temporaire sudo_path
-# Il permet d'utiliser sudo en gardant le $PATH modifié
-# ynh_install_nodejs installe la version de nodejs demandée en argument, avec n
-# ynh_use_nodejs active une version de nodejs dans le script courant
-# 3 variables sont mises à disposition, et 2 sont stockées dans la config de l'app
-# - nodejs_path: Le chemin absolu de cette version de node
-# Utilisé pour des appels directs à node.
-# - nodejs_version: Simplement le numéro de version de nodejs pour cette application
-# - nodejs_use_version: Un alias pour charger une version de node dans le shell courant.
-# Utilisé pour démarrer un service ou un script qui utilise node ou npm
-# Dans ce cas, c'est $PATH qui contient le chemin de la version de node. Il doit être propagé sur les autres shell si nécessaire.
-
 
 #
 # PHP7 helpers
