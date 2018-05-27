@@ -28,7 +28,7 @@ admin=$(ynh_app_setting_get $app admin)
 is_public=$(ynh_app_setting_get $app is_public)
 final_path=$(ynh_app_setting_get $app final_path)
 db_name=$(ynh_app_setting_get $app db_name)
-
+language=$(ynh_app_setting_get $app language)
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
