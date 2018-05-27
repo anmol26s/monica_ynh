@@ -35,8 +35,7 @@ fi
 # REMOVE DEPENDENCIES
 #=================================================
 
-# Remove metapackage and its dependencies
-ynh_remove_app_dependencies
+
 
 #=================================================
 # REMOVE THE MYSQL DATABASE

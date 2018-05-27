@@ -70,7 +70,7 @@ ynh_app_setting_set $app language $language
 #=================================================
 
 ynh_install_php7
-ynh_install_nodejs 6.10.3
+ynh_install_nodejs 9
 
 #=================================================
 # CREATE A MYSQL DATABASE
@@ -137,18 +137,17 @@ sudo sed -i "s/yunodomain/$domain/g" $final_path/.env
 sudo sed -i "s,yunopath,${path_url},g" $final_path/.env
 
 # Install nodejs packages
-cd $final_path && sudo_path npm install -g npm@4 pnpm
+cd $final_path && sudo_path npm install 
+cd $final_path && sudo_path npm run production
 cd $final_path && sudo_path pnpm install
-cd $final_path && sudo_path pnpm install -g bower gulp
-cd $final_path && sudo_path bower install -f --allow-root
+
 
 # setup application config
 cd $final_path && sudo /usr/bin/php7.1 artisan -q migrate --force
 cd $final_path && sudo /usr/bin/php7.1 artisan -q storage:link
-cd $final_path && sudo /usr/bin/php7.1 artisan -q optimize
 cd $final_path && sudo /usr/bin/php7.1 artisan -q db:seed --class ActivityTypesTableSeeder --force
 cd $final_path && sudo /usr/bin/php7.1 artisan -q db:seed --class CountriesSeederTable --force
-cd $final_path && sudo /usr/bin/php7.1 artisan -q db:seed --class CreateUser --force
+
 
 # create a cronjob to run the scheduler
 echo "* * * * * www-data cd $final_path && /usr/bin/php7.1 $final_path/artisan schedule:run >/dev/null 2>&1" > /tmp/cron$app
