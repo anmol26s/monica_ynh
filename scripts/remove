@@ -24,7 +24,8 @@ db_name=$(ynh_app_setting_get $app db_name)
 # REMOVE DEPENDENCIES
 #=================================================
 
-
+# Remove metapackage and its dependencies
+ynh_remove_app_dependencies
 
 #=================================================
 # REMOVE THE MYSQL DATABASE
