@@ -138,7 +138,7 @@ sudo sed -i "s,yunopath,${path_url},g" $final_path/.env
 # Install nodejs packages
 cd $final_path && sudo_path npm install 
 cd $final_path && sudo_path npm run production
-
+cd $final_path && sudo_path pnpm install
 
 
 # setup application config
@@ -146,7 +146,6 @@ cd $final_path && sudo /usr/bin/php7.1 artisan -q migrate --force
 cd $final_path && sudo /usr/bin/php7.1 artisan -q storage:link
 cd $final_path && sudo /usr/bin/php7.1 artisan -q db:seed --class ActivityTypesTableSeeder --force
 cd $final_path && sudo /usr/bin/php7.1 artisan -q db:seed --class CountriesSeederTable --force
-cd $final_path && sudo /usr/bin/php7.1 artisan -q key:generate --force
 cd $final_path && sudo /usr/bin/php7.1 artisan -q setup:production --force
 
 
